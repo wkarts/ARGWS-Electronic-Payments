@@ -14,7 +14,7 @@ logs/
 
 # Node/PHP/Python/Rust comuns
 node_modules/
-vendor/
+
 __pycache__/
 target/
 dist/

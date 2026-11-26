@@ -1,0 +1,25 @@
+{
+    "name": "argws/electronic-payments",
+    "description": "Pagamentos eletrônicos para aplicações PHP, com adaptador Asaas para cobranças, recebimentos e extratos.",
+    "type": "library",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.2",
+        "argws/asaas-sdk-php": "^0.4.0",
+        "guzzlehttp/guzzle": "^7.8"
+    },
+    "autoload": {
+        "psr-4": {
+            "Argws\\ElectronicPayments\\": "src/"
+        }
+    },
+    "scripts": {
+        "test": "@php tests/run.php"
+    },
+    "repositories": [
+        {
+            "type": "git",
+            "url": "https://github.com/wkarts/asaas-sdk-argws"
+        }
+    ]
+}

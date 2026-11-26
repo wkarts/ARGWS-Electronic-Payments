@@ -1,0 +1,10 @@
+services:
+  playground:
+    build:
+      context: ..
+      dockerfile: playground/Dockerfile
+    ports:
+      - "8080:8080"
+    env_file: .env
+    volumes:
+      - ./storage:/app/playground/storage
