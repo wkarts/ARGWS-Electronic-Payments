@@ -1,10 +1,10 @@
 # ARGWS Electronic Payments
 
-Pacote Composer `argws/electronic-payments` para aplicações PHP 8.2 ou superior. O adaptador Asaas utiliza `argws/asaas-sdk-php` 0.4.x. Oferece Pix, boleto, cartão de crédito com checkout hospedado, consulta de recebimentos, conciliação por parcela e exportação de extrato.
+Pacote Composer `argws/electronic-payments` para aplicações PHP 8.2 ou superior. O adaptador Asaas inclui a SDK PHP do Asaas no próprio pacote. Oferece Pix, boleto, cartão de crédito com checkout hospedado, consulta de recebimentos, conciliação por parcela e exportação de extrato.
 
 ## Uso direto desta distribuição
 
-Este ZIP já inclui o autoloader, a SDK Asaas 0.4.0 e as dependências de execução. Extraia a pasta inteira. Em um script PHP localizado ao lado da pasta extraída, carregue:
+Este ZIP já inclui o autoloader, a SDK Asaas e as dependências de execução. Extraia a pasta inteira. Em um script PHP localizado ao lado da pasta extraída, carregue:
 
 ```php
 require_once __DIR__ . '/electronic-payments/vendor/autoload.php';
@@ -18,19 +18,19 @@ Para instalar a partir do ZIP, extraia a pasta `electronic-payments` em `package
 
 ```bash
 composer config repositories.electronic-payments path ./packages/electronic-payments
-composer config repositories.asaas-sdk git https://github.com/wkarts/asaas-sdk-argws.git
 composer require 'argws/electronic-payments:@dev'
 ```
 
-Após a primeira release estável, instale pela tag do repositório:
+Para instalar a versão estável pelo repositório:
 
 ```bash
 composer config repositories.electronic-payments git https://github.com/wkarts/ARGWS-Electronic-Payments.git
-composer config repositories.asaas-sdk git https://github.com/wkarts/asaas-sdk-argws.git
-composer require "argws/electronic-payments:^0.1"
+composer require "argws/electronic-payments:^0.1.1"
 ```
 
-A origem Git garante acesso à tag da SDK requerida. O Composer considera os repositórios definidos no projeto consumidor. O lock do consumidor registra os commits efetivamente instalados.
+O consumidor exige apenas `argws/electronic-payments`. O autoloader da aplicação resolve `Asaas\Sdk\` em `vendor/argws/electronic-payments/vendor/argws/asaas-sdk-php/src/`. O manifesto do pacote declara a versão exata fornecida em `replace` e o commit de origem em `extra.bundled-sdks`. As bibliotecas comuns de execução, como Guzzle e PSR Log, continuam sob controle do Composer do consumidor.
+
+O fluxo **Atualizar SDK Asaas interna** consulta as tags estáveis diariamente e também aceita execução manual. Uma nova tag gera uma atualização da cópia versionada, do manifesto e do lock. A verificação compara o conteúdo com o commit da SDK e instala o pacote numa aplicação limpa. Alterações nos requisitos ou no autoload da SDK exigem compatibilização. O fluxo abre uma PR, aguarda a validação do commit e solicita o merge conforme as regras da branch. A publicação segue o fluxo SemVer da main. Se a proteção exigir revisão humana, a PR fica disponível para aprovação. Para o token padrão, habilite no GitHub a permissão de Actions para criar PRs, ou configure o `RELEASE_TOKEN` já usado no projeto com as permissões de conteúdo, PRs e Actions necessárias. A aplicação consome a mudança ao atualizar `argws/electronic-payments` em seu próprio lock.
 
 ## Versionamento e publicação
 

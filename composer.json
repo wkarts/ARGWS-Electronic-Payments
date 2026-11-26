@@ -5,21 +5,27 @@
     "license": "proprietary",
     "require": {
         "php": "^8.2",
-        "argws/asaas-sdk-php": "^0.4.0",
-        "guzzlehttp/guzzle": "^7.8"
+        "guzzlehttp/guzzle": "^7.8",
+        "ext-json": "*",
+        "psr/log": "^3.0"
     },
     "autoload": {
         "psr-4": {
-            "Argws\\ElectronicPayments\\": "src/"
+            "Argws\\ElectronicPayments\\": "src/",
+            "Asaas\\Sdk\\": "vendor/argws/asaas-sdk-php/src/"
         }
     },
     "scripts": {
         "test": "@php tests/run.php"
     },
-    "repositories": [
-        {
-            "type": "git",
-            "url": "https://github.com/wkarts/asaas-sdk-argws"
+    "replace": {
+        "argws/asaas-sdk-php": "0.4.0"
+    },
+    "extra": {
+        "bundled-sdks": {
+            "argws/asaas-sdk-php": {
+                "reference": "be056d7cc5bb0a3e666c646dd1f09d57bdf49fce"
+            }
         }
-    ]
+    }
 }
