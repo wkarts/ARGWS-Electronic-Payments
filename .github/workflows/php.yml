@@ -24,6 +24,7 @@ jobs:
       - run: composer validate --strict
       - run: composer install --prefer-dist --no-interaction --no-progress
       - run: composer test
+      - run: bash scripts/release/test-consumer.sh
 
   distribution:
     name: Validar SemVer e ZIP com vendor
@@ -35,5 +36,10 @@ jobs:
           php-version: '8.2'
           tools: composer:v2
           coverage: none
+      - name: Conferir o conteúdo da SDK com a tag de origem
+        run: |
+          tag=$(jq -r '.replace["argws/asaas-sdk-php"]' composer.json)
+          git clone --quiet --depth 1 --branch "v$tag" https://github.com/wkarts/asaas-sdk-argws.git "$RUNNER_TEMP/asaas"
+          python3 scripts/release/sync-asaas.py "$RUNNER_TEMP/asaas" --check
       - run: python3 scripts/release/test_version.py
       - run: bash scripts/release/package.sh v0.0.0

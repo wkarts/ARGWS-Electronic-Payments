@@ -11,7 +11,7 @@ trap 'rm -rf "$work"' EXIT
 mkdir -p "$dest" "$work/electronic-payments" "$work/check"
 
 # Instalar em uma pasta nova garante que o ZIP use exclusivamente o lock do commit.
-git -C "$root" archive HEAD README.md composer.json composer.lock src tests | tar -x -C "$work/electronic-payments"
+git -C "$root" archive HEAD README.md composer.json composer.lock src tests vendor/argws | tar -x -C "$work/electronic-payments"
 cd "$work/electronic-payments"
 export COMPOSER_ROOT_VERSION="${tag#v}"
 composer validate --strict

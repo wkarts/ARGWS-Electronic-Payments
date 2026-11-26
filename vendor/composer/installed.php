@@ -1,8 +1,8 @@
 <?php return array(
     'root' => array(
         'name' => 'argws/electronic-payments',
-        'pretty_version' => '1.0.0+no-version-set',
-        'version' => '1.0.0.0',
+        'pretty_version' => '0.1.1',
+        'version' => '0.1.1.0',
         'reference' => null,
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
@@ -11,17 +11,14 @@
     ),
     'versions' => array(
         'argws/asaas-sdk-php' => array(
-            'pretty_version' => 'v0.4.0',
-            'version' => '0.4.0.0',
-            'reference' => 'be056d7cc5bb0a3e666c646dd1f09d57bdf49fce',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../argws/asaas-sdk-php',
-            'aliases' => array(),
             'dev_requirement' => false,
+            'replaced' => array(
+                0 => '0.4.0',
+            ),
         ),
         'argws/electronic-payments' => array(
-            'pretty_version' => '1.0.0+no-version-set',
-            'version' => '1.0.0.0',
+            'pretty_version' => '0.1.1',
+            'version' => '0.1.1.0',
             'reference' => null,
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
