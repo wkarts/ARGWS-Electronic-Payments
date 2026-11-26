@@ -167,6 +167,28 @@ final readonly class AsaasProvider implements PaymentProvider, Refunds, PixInstr
         if (!WebhookToken::matches($configuredSecret, $providedToken)) {
             throw new \DomainException('Segredo do webhook inválido.');
         }
+        return $this->parseWebhook($body);
+    }
+
+    /** Store only this fingerprint of a randomly generated webhook token. */
+    public static function webhookTokenHash(#[\SensitiveParameter] string $token): string
+    {
+        if ($token === '') {
+            throw new \DomainException('Token do webhook ausente.');
+        }
+        return hash('sha256', $token);
+    }
+
+    public function webhookWithTokenHash(string $body, #[\SensitiveParameter] string $providedToken, string $storedHash): ?PaymentEvent
+    {
+        if (!hash_equals($storedHash, self::webhookTokenHash($providedToken))) {
+            throw new \DomainException('Token do webhook inválido.');
+        }
+        return $this->parseWebhook($body);
+    }
+
+    private function parseWebhook(string $body): ?PaymentEvent
+    {
         $this->connection->authorize();
         $event = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
         if (!is_array($event)) {
