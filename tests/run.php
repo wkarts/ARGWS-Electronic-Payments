@@ -187,6 +187,12 @@ $tests['Webhook autenticado e escopado, preserva ID para deduplicação'] = func
     same(ChargeStatus::Settled, $event->status);
     same('evt_1', $event->eventId);
     same('conta-matriz', $event->charge->account->accountId);
+    $key = \Asaas\Sdk\Webhook\WebhookToken::generate();
+    $hash = AsaasProvider::webhookTokenHash($key);
+    same($event->eventId, $f->provider->webhookWithTokenHash($body, $key, $hash)->eventId);
+    fails(DomainException::class, fn () => $f->provider->webhookWithTokenHash($body, $hash, $hash));
+    fails(DomainException::class, fn () => $f->provider->webhookWithTokenHash($body, '', $hash));
+    fails(DomainException::class, fn () => $f->provider->webhookWithTokenHash($body, 'outro', $hash));
     same(null, $f->provider->webhook('{"event":"TRANSFER_DONE"}', 'segredo', 'segredo'));
 };
 
