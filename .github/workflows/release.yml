@@ -1,0 +1,77 @@
+name: Publicar release do pacote
+
+on:
+  workflow_run:
+    workflows: ["Verificar pacote PHP"]
+    types: [completed]
+    branches: [main]
+  push:
+    tags: ['v[0-9]*']
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    if: >-
+      github.event_name == 'push' ||
+      (github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main' &&
+       github.event.workflow_run.head_repository.full_name == github.repository)
+    concurrency:
+      group: electronic-payments-stable-release
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          fetch-depth: 0
+          token: ${{ secrets.RELEASE_TOKEN || github.token }}
+
+      - name: Selecionar versão SemVer
+        id: version
+        env:
+          EXPLICIT_TAG: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
+        run: |
+          git merge-base --is-ancestor HEAD origin/main
+          tag=$(python3 scripts/release/version.py "$EXPLICIT_TAG")
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - uses: shivammathur/setup-php@v2
+        if: steps.version.outputs.tag != ''
+        with:
+          php-version: '8.2'
+          tools: composer:v2
+          coverage: none
+
+      - name: Montar e testar ZIP de distribuição
+        if: steps.version.outputs.tag != ''
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+        run: bash scripts/release/package.sh "$TAG"
+
+      - name: Publicar tag, ZIP e SHA-256
+        if: steps.version.outputs.tag != ''
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN || github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: bash scripts/release/publish.sh "$TAG"
+
+      - name: Atualizar índice do Packagist
+        if: steps.version.outputs.tag != ''
+        env:
+          PACKAGIST_USERNAME: ${{ secrets.PACKAGIST_USERNAME }}
+          PACKAGIST_TOKEN: ${{ secrets.PACKAGIST_TOKEN }}
+        run: |
+          if [[ -z "$PACKAGIST_USERNAME" || -z "$PACKAGIST_TOKEN" ]]; then
+            echo "Notificação opcional do Packagist sem credenciais configuradas."
+            exit 0
+          fi
+          jq -n --arg url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" '{repository:{url:$url}}' |
+            curl --silent --show-error --fail-with-body --retry 3 \
+              -H 'Content-Type: application/json' -H "Authorization: Bearer $PACKAGIST_USERNAME:$PACKAGIST_TOKEN" \
+              --data-binary @- https://packagist.org/api/update-package

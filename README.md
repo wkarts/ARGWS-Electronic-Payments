@@ -22,15 +22,24 @@ composer config repositories.asaas-sdk git https://github.com/wkarts/asaas-sdk-a
 composer require 'argws/electronic-payments:@dev'
 ```
 
-Para instalar diretamente da branch de revisão após sua publicação:
+Após a primeira release estável, instale pela tag do repositório:
 
 ```bash
 composer config repositories.electronic-payments git https://github.com/wkarts/ARGWS-Electronic-Payments.git
 composer config repositories.asaas-sdk git https://github.com/wkarts/asaas-sdk-argws.git
-composer require argws/electronic-payments:dev-feat/pacote-pagamentos-eletronicos
+composer require "argws/electronic-payments:^0.1"
 ```
 
-A origem Git garante acesso à tag da SDK requerida. O Composer considera os repositórios definidos no projeto consumidor. Quando existir uma tag estável do pacote, substitua a referência da branch pela restrição de versão correspondente. O lock do consumidor registra os commits efetivamente instalados.
+A origem Git garante acesso à tag da SDK requerida. O Composer considera os repositórios definidos no projeto consumidor. O lock do consumidor registra os commits efetivamente instalados.
+
+## Versionamento e publicação
+
+A versão oficial vem da tag Git em formato `vMAJOR.MINOR.PATCH`. Cada push na `main` passa pela matriz PHP e pela construção do ZIP. Quando o workflow **Verificar pacote PHP** termina com sucesso, **Publicar release do pacote** usa o SHA validado para publicar no GitHub Releases.
+
+- Primeira versão automática: `v0.1.0`. O incremento padrão é patch. Para solicitar minor ou major, inclua o trailer Git `Release-Bump: minor` ou `Release-Bump: major` em um commit que entrará na `main` (no squash, inclua o trailer na mensagem final). Entre dois releases prevalece o maior incremento solicitado.
+- Uma tag estável enviada manualmente em um commit da `main` também aciona a publicação. Reruns do mesmo commit reutilizam a tag. Uma validação atrasada de um commit já superado por uma versão estável dispensa nova tag.
+- O ZIP oficial inclui `vendor/autoload.php`, a SDK Asaas e as dependências instaladas pelo lock, além de `release-info.json` com versão, tag e SHA do código. O workflow extrai o arquivo e roda os testes antes de publicar. Para conferir a integridade, baixe também o arquivo `.sha256` e execute `sha256sum -c argws-electronic-payments-vX.Y.Z.zip.sha256`.
+- A publicação utiliza `GITHUB_TOKEN` com permissão de escrita em conteúdo. Quando as regras do repositório exigirem outro token autorizado para tags, configure `RELEASE_TOKEN`. Para atualizar o índice de um pacote já cadastrado no Packagist, configure `PACKAGIST_USERNAME` e `PACKAGIST_TOKEN`.
 
 ## Conexão e cobrança
 
